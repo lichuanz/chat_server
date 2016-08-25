@@ -8,7 +8,7 @@ var typingUsers = {};
 var clients = {};
 
 app.get('/', function(req, res){
-  res.send('<h1>AppCoda - SocketChat Server</h1>');
+  res.send('<h1>FyrePlace Server</h1>');
 });
 
 
