@@ -19,6 +19,7 @@ http.listen(process.env.PORT || 3000, function(){
 
 io.on('connection', function(clientSocket){
   console.log('a user connected');
+  io.to(clientSocket.id).emit("fyreList", fyreList);
 
   clientSocket.on('disconnect', function(){
     console.log('user disconnected');
