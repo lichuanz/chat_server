@@ -24,16 +24,16 @@ io.on('connection', function(clientSocket){
   clientSocket.on('disconnect', function(){
     console.log('user disconnected');
     
-    if (clientSocket.fyre != null) {
+    /*if (clientSocket.fyre != null) {
       var clientNickname = clientSocket.username;
       var fyreName = clientSocket.fyre;
-      /*for (var i=0; i<userList[fyreName].length; i++) {
+      for (var i=0; i<userList[fyreName].length; i++) {
         if (userList[fyrename][i]["id"] == clientSocket.id) {
           userList[fyreName][i]["isConnected"] = false;
           clientNickname = userList[fyreName][i]["nickname"];
           break;
         }
-      }*/
+      }
       
       for (var i=0; i<clients[fyreName].length; i++) {
         if (clients[fyreName][i].id == clientSocket.id) {
@@ -45,9 +45,9 @@ io.on('connection', function(clientSocket){
       clientSocket.fyre = null;
                   
       clientSocket.leave(fyreName);
-      //io.in(fyreName).emit("userList", userList[fyreName]);
-      //io.in(fyreName).emit("userExitUpdate", clientNickname);
-    }
+      io.in(fyreName).emit("userList", userList[fyreName]);
+      io.in(fyreName).emit("userExitUpdate", clientNickname);
+    }*/
   });
 
 
@@ -179,6 +179,15 @@ io.on('connection', function(clientSocket){
       delete typingUsers[fyreName][clientNickname];
       io.in(fyreName).emit("userTypingUpdate", typingUsers[fyreName]);
     }
+                  
+    for (var i=0; i<clients[fyreName].length; i++) {
+      if (clients[fyreName][i].id == clientSocket.id) {
+        clients[fyreName].splice(i,1);
+        break;
+      }
+    }
+    clientSocket.fyre = null;
+    clientSocket.leave(fyreName);
   });
       
   clientSocket.on("activeUser", function(clientNickname) {
