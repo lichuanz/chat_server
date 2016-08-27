@@ -150,7 +150,7 @@ io.on('connection', function(clientSocket){
   });
       
   clientSocket.on("activeUser", function(clientNickname, fyreName) {
-    if (userList[fyreName] != null) {
+    //if (userList[fyreName] != null) {
       for (var i=0; i<userList[fyreName].length; i++) {
         if (userList[fyreName][i]["nickname"] == clientNickname) {
           userList[fyreName][i]["id"] = clientSocket.id;
@@ -163,7 +163,7 @@ io.on('connection', function(clientSocket){
           break;
         }
       }
-    }
+    //}
 
     io.in(fyreName).emit("userList", userList[fyreName]);
   });
