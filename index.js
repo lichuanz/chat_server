@@ -24,22 +24,30 @@ io.on('connection', function(clientSocket){
   clientSocket.on('disconnect', function(){
     console.log('user disconnected');
     
-    /*if (clientSocket.fyre != null) {
-      var clientNickname;
+    if (clientSocket.fyre != null) {
+      var clientNickname = clientSocket.username;
       var fyreName = clientSocket.fyre;
-      for (var i=0; i<userList[fyreName].length; i++) {
+      /*for (var i=0; i<userList[fyreName].length; i++) {
         if (userList[fyrename][i]["id"] == clientSocket.id) {
           userList[fyreName][i]["isConnected"] = false;
           clientNickname = userList[fyreName][i]["nickname"];
           break;
         }
+      }*/
+      
+      for (var i=0; i<clients[fyreName].length; i++) {
+        if (clients[fyreName][i].id == clientSocket.id) {
+          clients[fyreName].splice(i,1);
+          break;
+        }
       }
-
-      delete typingUsers[fyreName][clientNickname];
-      io.in(fyreName).emit("userList", userList[fyreName]);
-      io.in(fyreName).emit("userExitUpdate", clientNickname);
-      io.in(fyreName).emit("userTypingUpdate", typingUsers[fyreName]);
-    }*/
+                  
+      clientSocket.fyre = null;
+                  
+      clientSocket.leave(fyreName);
+      //io.in(fyreName).emit("userList", userList[fyreName]);
+      //io.in(fyreName).emit("userExitUpdate", clientNickname);
+    }
   });
 
 
@@ -95,9 +103,8 @@ io.on('connection', function(clientSocket){
       if (userList[fyreName] != null) {
         for (var i=0; i<userList[fyreName].length; i++) {
           if (userList[fyreName][i]["nickname"] == clientNickname) {
-            //userList[fyreName][i]["isConnected"] = true;
-            //userList[fyreName][i]["id"] = clientSocket.id;
-            //userInfo = userList[fyreName][i];
+            console.log("ERROR: Username already taken");
+            io.to(clientSocket.id).emit("usernameTakenError")
             foundUser = true;
             break;
           }
@@ -110,11 +117,13 @@ io.on('connection', function(clientSocket){
         if (userList[fyreName] == null) {
           userList[fyreName] = [];
         }
-        userList[fyreName].push(userInfo);
         
         clientSocket.username = clientNickname;
         clientSocket.fyre = fyreName;
         clientSocket.join(fyreName);
+                  
+        userList[fyreName].push(userInfo);
+                  
         if (clients[fyreName] == null) {
           clients[fyreName] = [];
         }
@@ -137,7 +146,53 @@ io.on('connection', function(clientSocket){
         io.in(fyreName).emit("userConnectUpdate", userInfo);
       }
   });
+      
+  clientSocket.on("reconnectUser", function(clientNickname, fyreName) {
+    if (userList[fyreName] != null) {
+      for (var i=0; i<userList[fyreName].length; i++) {
+        if (userList[fyreName][i]["nickname"] == clientNickname) {
+          userList[fyreName][i]["id"] = clientSocket.id
+          clientSocket.username = clientNickname;
+          clientSocket.fyre = fyreName;
+          clientSocket.join(fyreName);
+          clients[fyreName].push(clientSocket);
+          console.log("User " + clientNickname + " was reconnected to " + fyreName);
+          break;
+        }
+      }
+    }
+  });
 
+  clientSocket.on("idleUser", function(clientNickname) {
+    var fyreName = clientSocket.fyre;
+    for (var i=0; i<userList[fyreName].length; i++) {
+      if (userList[fyreName][i]["nickname"] == clientNickname) {
+        userList[fyreName][i]["isConnected"] = false;
+        console.log("User " + clientNickname + " is now idle");
+        break;
+      }
+    }
+                  
+    io.in(fyreName).emit("userList", userList[fyreName]);
+                  
+    if (typingUsers[fyreName] != null && typingUsers[fyreName][clientNickname] != null) {
+      delete typingUsers[fyreName][clientNickname];
+      io.in(fyreName).emit("userTypingUpdate", typingUsers[fyreName]);
+    }
+  });
+      
+  clientSocket.on("activeUser", function(clientNickname) {
+    var fyreName = clientSocket.fyre;
+    for (var i=0; i<userList[fyreName].length; i++) {
+      if (userList[fyreName][i]["nickname"] == clientNickname) {
+        userList[fyreName][i]["isConnected"] = true;
+        console.log("User " + clientNickname + " is now active");
+        break;
+      }
+    }
+                  
+    io.in(fyreName).emit("userList", userList[fyreName]);
+  });
 
   clientSocket.on("startType", function(clientNickname) {
     console.log("User " + clientNickname + " is writing a message...");
