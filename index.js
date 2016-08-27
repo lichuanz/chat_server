@@ -121,22 +121,6 @@ io.on('connection', function(clientSocket){
         io.in(fyreName).emit("userConnectUpdate", userInfo);
       }
   });
-      
-  clientSocket.on("reconnectUser", function(clientNickname, fyreName) {
-    if (userList[fyreName] != null) {
-      for (var i=0; i<userList[fyreName].length; i++) {
-        if (userList[fyreName][i]["nickname"] == clientNickname) {
-          userList[fyreName][i]["id"] = clientSocket.id
-          clientSocket.username = clientNickname;
-          clientSocket.fyre = fyreName;
-          clientSocket.join(fyreName);
-          clients[fyreName].push(clientSocket);
-          console.log("User " + clientNickname + " was reconnected to " + fyreName);
-          break;
-        }
-      }
-    }
-  });
 
   clientSocket.on("idleUser", function(clientNickname) {
     var fyreName = clientSocket.fyre;
@@ -165,16 +149,22 @@ io.on('connection', function(clientSocket){
     clientSocket.leave(fyreName);
   });
       
-  clientSocket.on("activeUser", function(clientNickname) {
-    var fyreName = clientSocket.fyre;
-    for (var i=0; i<userList[fyreName].length; i++) {
-      if (userList[fyreName][i]["nickname"] == clientNickname) {
-        userList[fyreName][i]["isConnected"] = true;
-        console.log("User " + clientNickname + " is now active");
-        break;
+  clientSocket.on("activeUser", function(clientNickname, fyreName) {
+    if (userList[fyreName] != null) {
+      for (var i=0; i<userList[fyreName].length; i++) {
+        if (userList[fyreName][i]["nickname"] == clientNickname) {
+          userList[fyreName][i]["id"] = clientSocket.id;
+          userList[fyreName][i]["isConnected"] = true;
+          clientSocket.username = clientNickname;
+          clientSocket.fyre = fyreName;
+          clientSocket.join(fyreName);
+          clients[fyreName].push(clientSocket);
+          console.log("User " + clientNickname + " is now active");
+          break;
+        }
       }
     }
-                  
+
     io.in(fyreName).emit("userList", userList[fyreName]);
   });
 
