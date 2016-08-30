@@ -189,14 +189,16 @@ io.on('connection', function(clientSocket){
   });
       
 
-  clientSocket.on("createFyre", function(fyreName) {
+  clientSocket.on("createFyre", function(fyreName, fyreOption, datetime) {
     var fyreInfo = {};
     
     fyreInfo["name"] = fyreName;
-    //fyreInfo["owner"] = "NOT YET IMPLEMENTED";
-    //fyreInfo["type"] = "NOT YET IMPLEMENTED";
+    fyreInfo["owner"] = "NOT YET IMPLEMENTED";
+    fyreInfo["photo"] = "NOT YET IMPLEMENTED";
+    fyreInfo["option"] = fyreOption;
     fyreInfo["size"] = 0;
     fyreInfo["status"] = "Active";
+    fyreInfo["time"] = datetime;
     fyreList.push(fyreInfo);
                   
     console.log("Fyre " + fyreName + " was created.");
@@ -224,7 +226,7 @@ io.on('connection', function(clientSocket){
       io.emit("fyreList", fyreList);
   });
       
-  clientSocket.on("editFyre", function(fyreName, newFyreName) {
+  clientSocket.on("editFyre", function(fyreName, newFyreName, fyreOption) {
                   
     userList[newFyreName] = userList[fyreName];
     delete userList[fyreName];
@@ -237,8 +239,9 @@ io.on('connection', function(clientSocket){
                   
     for (var i=0; i<fyreList.length; i++) {
       if (fyreList[i]["name"] == fyreName) {
-        fyreList[i]["name"] == newFyreName;
-        console.log("Fyre " + fyreName + " was changed to " + newFyreName);
+        fyreList[i]["name"] = newFyreName;
+        fyreList[i]["option"] = fyreOption;
+        console.log("Fyre " + fyreName + " was edited");
         break;
       }
     }
