@@ -89,9 +89,6 @@ io.on('connection', function(clientSocket){
         userInfo["id"] = clientSocket.id;
         userInfo["nickname"] = clientNickname;
         userInfo["isConnected"] = true;
-        if (userList[fyreName] == null) {
-          userList[fyreName] = [];
-        }
         
         clientSocket.username = clientNickname;
         clientSocket.fyre = fyreName;
@@ -99,9 +96,6 @@ io.on('connection', function(clientSocket){
                   
         userList[fyreName].push(userInfo);
                   
-        if (clients[fyreName] == null) {
-          clients[fyreName] = [];
-        }
         clients[fyreName].push(clientSocket);
         
         for (var i=0; i<fyreList.length; i++) {
@@ -171,9 +165,7 @@ io.on('connection', function(clientSocket){
   clientSocket.on("startType", function(clientNickname) {
     console.log("User " + clientNickname + " is writing a message...");
     var fyreName = clientSocket.fyre;
-    if (typingUsers[fyreName] == null) {
-    typingUsers[fyreName] = {};
-    }
+                  
     typingUsers[fyreName][clientNickname] = 1;
     io.in(fyreName).emit("userTypingUpdate", typingUsers[fyreName]);
   });
@@ -200,6 +192,10 @@ io.on('connection', function(clientSocket){
     fyreInfo["status"] = "Active";
     fyreInfo["time"] = datetime;
     fyreList.push(fyreInfo);
+    
+    userList[fyreName] = [];
+    clients[fyreName] = [];
+    typingUsers[fyreName] = {};
                   
     console.log("Fyre " + fyreName + " was created.");
                   
