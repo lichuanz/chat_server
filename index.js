@@ -245,4 +245,8 @@ io.on('connection', function(clientSocket){
     io.emit("fyreList", fyreList);
   });
       
+  clientSocket.on("updateUserList", function(fyreName) {
+    io.to(clientSocket.id).emit("userList", userList[fyreName]);
+  }
+      
 });
