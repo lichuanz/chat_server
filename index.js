@@ -247,6 +247,6 @@ io.on('connection', function(clientSocket){
       
   clientSocket.on("updateUserList", function(fyreName) {
     io.to(clientSocket.id).emit("userList", userList[fyreName]);
-  }
+  });
       
 });
