@@ -44,7 +44,7 @@ io.on('connection', function(clientSocket){
                   
     clientSocket.fyre = null;
                   
-    clientSocket.leave(fyreName);
+    //clientSocket.leave(fyreName);
     console.log("User " + clientNickname + " was disconnected from " + fyreName);
                   
     for (var i=0; i<fyreList.length; i++) {
@@ -92,7 +92,7 @@ io.on('connection', function(clientSocket){
         
         clientSocket.username = clientNickname;
         clientSocket.fyre = fyreName;
-        clientSocket.join(fyreName);
+        //clientSocket.join(fyreName);
                   
         userList[fyreName].push(userInfo);
                   
@@ -246,7 +246,12 @@ io.on('connection', function(clientSocket){
   });
       
   clientSocket.on("updateUserList", function(fyreName) {
+    clientSocket.join(fyreName);
     io.to(clientSocket.id).emit("userList", userList[fyreName]);
+  });
+    
+  clientSocket.on("leaveFyreName", function(fyreName) {
+    clientSocket.leave(fyreName);
   });
       
 });
